@@ -1,75 +1,202 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
-    output   = "../generated/prisma"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-    provider = "mysql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "mysql"
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
+model Abteilung {
+  id          String        @id
+  name        String
+  idx         Int?
+  Mitarbeiter Mitarbeiter[]
 }
 
-// Necessary for Next auth
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Angebot {
+  id         String   @id
+  title      String
+  subtitle   String?
+  date_start DateTime
+  date_stop  DateTime
+  link       String
+  image      String
+  anzeigen   Boolean  @default(false)
+}
+
+model Ansprechpartner {
+  id          String    @id
+  name        String
+  telefon     String?
+  mobil       String?
+  mail        String?
+  lieferantId String
+  Lieferant   Lieferant @relation(fields: [lieferantId], references: [id], onDelete: Cascade)
+
+  @@index([lieferantId], map: "Ansprechpartner_lieferantId_fkey")
+}
+
+model Aussteller {
+  id            Int     @id
+  Artikelnummer String
+  Artikelname   String
+  Specs         String  @db.Text
+  Preis         Float   @db.Float
+  Bild          String? @db.Text
+}
+
+model Einkauf {
+  id          String       @id
+  Paypal      Boolean      @default(false)
+  Abonniert   Boolean      @default(false)
+  Geld        String?
+  Pfand       String?
+  Dinge       String       @db.Text
+  Abgeschickt DateTime
+  Bild1       String?      @db.Text
+  Bild2       String?      @db.Text
+  Bild3       String?      @db.Text
+  Mitarbeiter Mitarbeiter?
+}
+
+model Jobs {
+  id           String  @id
+  name         String
+  online       Boolean @default(false)
+  Aufgaben     String? @db.Text
+  Beschreibung String? @db.Text
+  Profil       String? @db.Text
+  isAusbilung  Boolean @default(false)
+}
+
+model Lieferant {
+  id              String            @id
+  Firma           String
+  Kundennummer    String?
+  Webseite        String?
+  Ansprechpartner Ansprechpartner[]
+}
+
+model Mitarbeiter {
+  id               String     @id
+  name             String     @unique
+  short            String?
+  image            Boolean    @default(false)
+  sex              String?
+  focus            String?
+  mail             String?    @unique
+  abteilungId      String?
+  einkaufId        String?    @unique
+  Azubi            Boolean    @default(false)
+  Geburtstag       DateTime?
+  Gruppenwahl      String?
+  HomeOffice       String?
+  Mobil_Business   String?
+  Mobil_Privat     String?
+  Telefon_Business String?
+  Telefon_Intern_1 String?
+  Telefon_Intern_2 String?
+  Telefon_Privat   String?
+  Bild             String?
+  Abteilung        Abteilung? @relation(fields: [abteilungId], references: [id])
+  Einkauf          Einkauf?   @relation(fields: [einkaufId], references: [id], onDelete: Cascade)
+
+  @@index([abteilungId], map: "Mitarbeiter_abteilungId_fkey")
+}
+
+model Partner {
+  id    String @id
+  name  String
+  link  String
+  image String
+}
+
+model Pdfs {
+  id    Int    @id @default(autoincrement())
+  title String
+  body  String @db.Text
+}
+
+model Referenzen {
+  id       String  @id
+  Name     String
+  Webseite String
+  Bild     String
+  Online   Boolean @default(false)
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Status {
+  id     Int    @id @default(autoincrement())
+  status String
+  since  String
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+  id            String    @id
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  name          String?
+  Account       Account[]
+  Session       Session[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
+}
+
+model Warenlieferung {
+  Name          String
+  angelegt      DateTime  @default(now())
+  geliefert     DateTime?
+  AlterPreis    Float?    @db.Float
+  NeuerPreis    Float?    @db.Float
+  Preis         DateTime?
+  Artikelnummer String
+  id            Int       @id
+}
+
+model files {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  file_hash     String   @unique(map: "uniq_file_hash") @db.VarChar(64)
+  password_hash String   @db.VarChar(255)
+  original_name String   @db.VarChar(255)
+  mime_type     String?  @db.VarChar(255)
+  size_bytes    BigInt   @db.UnsignedBigInt
+  stored_path   String   @db.VarChar(1024)
+  created_at    DateTime @db.DateTime(0)
 }
