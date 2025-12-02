@@ -168,6 +168,8 @@ model User {
   image         String?
   name          String?
   role          String    @default("USER")
+  mode          String    @default("system")
+  theme         String    @default("cerberus")
   Account       Account[]
   Session       Session[]
 }

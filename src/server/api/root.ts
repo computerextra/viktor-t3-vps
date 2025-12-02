@@ -1,5 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { angebotRouter } from "./routers/angebote";
+import { themeRouter } from "./routers/themes";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { angebotRouter } from "./routers/angebote";
  */
 export const appRouter = createTRPCRouter({
   post: angebotRouter,
+  mode: themeRouter,
 });
 
 // export type definition of API
