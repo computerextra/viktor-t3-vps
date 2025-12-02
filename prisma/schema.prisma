@@ -167,6 +167,7 @@ model User {
   emailVerified DateTime?
   image         String?
   name          String?
+  role          String    @default("USER")
   Account       Account[]
   Session       Session[]
 }

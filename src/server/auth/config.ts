@@ -1,14 +1,15 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { DefaultSession, NextAuthConfig } from "next-auth";
 import Nodemailer from "next-auth/providers/nodemailer";
-import { db } from "../db";
 import { env } from "@/env";
+import { db } from "../db";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
       email: string;
+      role: string;
     } & DefaultSession["user"];
   }
 }
