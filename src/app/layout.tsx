@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Footer, Header } from "./defaultLayout";
 
 export const metadata: Metadata = {
   title: "Viktor",
@@ -19,7 +20,13 @@ export default function RootLayout({
   return (
     <html className={`${geist.variable}`} lang="de" data-theme="cerberus">
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <div className="grid h-screen grid-rows-[auto_1fr_auto]">
+            <Header />
+            <main className="p-4">{children}</main>
+            <Footer />
+          </div>
+        </TRPCReactProvider>
       </body>
     </html>
   );
